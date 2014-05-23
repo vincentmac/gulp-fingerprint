@@ -1,0 +1,45 @@
+{
+  "name": "gulp-fingerprint",
+  "version": "0.0.1",
+  "description": "Rename assets with fingerprinted assets",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vincentmac/gulp-fingerprint"
+  },
+  "author": {
+    "name": "Vincent Mac",
+    "email": "vincent@simplicity.io",
+    "url": "http://simplicity.io"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "keywords": [
+    "asset",
+    "assetpipeline",
+    "fingerprint",
+    "gulpplugin",
+    "manifest",
+    "pipeline",
+    "regex",
+    "rename",
+    "streams",
+    "vinyl"
+  ],
+  "main": "index.js",
+  "dependencies": {
+    "chalk": "^0.4.0",
+    "gulp-util": "^2.2.14",
+    "split2": "^0.1.1",
+    "through2": "^0.4.2"
+  },
+  "devDependencies": {
+    "mocha": "^1.19.0"
+  },
+  "readme": "",
+  "readmeFilename": "readme.md",
+  "bugs": {
+    "url": "https://github.com/vincentmac/gulp-fingerprint/issues"
+  }
+}
