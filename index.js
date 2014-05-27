@@ -1,4 +1,5 @@
 /* jshint node:true */
+
 'use strict';
 var gutil = require('gulp-util');
 var through = require('through2');
@@ -7,23 +8,28 @@ var chalk = require('chalk');
 
 var PLUGIN_NAME = 'gulp-fingerprint';
 
+/**
+ * Gulp Plugin to stream through a file and rename regex matches
+ *
+ * @param {Object} manifest - rev-manifest
+ * @param {Object} options
+ */
 var plugin = function(manifest, options) {
   var css = /url\("(.*)"\)/g;
   var regex = css; // set default regex to css
   options = options || {};
+  var content = [];
 
-  // console.log('manifest', manifest);
-
+  // Set Regex type
   if (options.type) {
     if (options.type === 'css') regex = css;
-    // ... add additional RegExp types here
+    // ... add additional predefined RegExp types here
   }
 
   // Use custom RegExp
   if (options.regex) regex = options.regex;
 
-
-  function urlReplace(buf, enc, callback) {
+  function urlReplace(buf, enc, cb) {
     var line = buf.toString();
     // console.log('\n','line', line);
     var replace;
@@ -32,15 +38,18 @@ var plugin = function(manifest, options) {
     if (match) {
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(match[1].replace(/^\//, '')));
       replace = manifest[match[1]] || manifest[match[1].replace(/^\//, '')];
-      line = line.replace(match[1], replace);
+      if (replace) line = line.replace(match[1], replace);
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
     }
 
-    this.push(line);
-    callback();
+    content.push(line);
+    cb();
   }
 
-  return through.obj(function(file, enc, cb) {
+  var stream = through.obj(function(file, enc, cb) {
+    var that = this;
+    content = []; // reset file content
+
     if (file.isNull()) {
       this.push(file);
       return cb();
@@ -48,17 +57,31 @@ var plugin = function(manifest, options) {
     // console.log(file.contents);
 
     if (file.isStream()) {
-      this.emit('error', new gutil.PluginError('gulp-rev', 'Streaming not supported'));
-			return cb();
+      console.log('is Stream');
+      this.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Streaming not supported'));
+      return cb();
     }
-    // if (file.isBuffer()) {
-    //   console.log('is Buffer');
-    // }
 
-    file.pipe(split())
-    .pipe(through(urlReplace))
+    if (file.isBuffer()) {
+      console.log('is Buffer');
+      file.pipe(split())
+      .pipe(through(urlReplace,  function(cb) {
+        if (content.length) {
+          file.contents = new Buffer(content.join('\n'));
+
+          // console.log(file.contents);
+          that.push(file);
+        }
+
+        cb();
+      }));
+    }
+
+
+
   });
 
+  return stream;
 };
 
 module.exports = plugin;

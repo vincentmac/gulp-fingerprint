@@ -57,6 +57,8 @@ css
 ##### regex
 Type: [`RegExp`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp)
 
+Sets a custom regex to match on your file.
+
 
 ## License
 
