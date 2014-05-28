@@ -1,6 +1,5 @@
-/* jshint node:true */
-
 'use strict';
+
 var gutil = require('gulp-util');
 var through = require('through2');
 var split = require('split2');
@@ -31,7 +30,6 @@ var plugin = function(manifest, options) {
 
   function urlReplace(buf, enc, cb) {
     var line = buf.toString();
-    // console.log('\n','line', line);
     var replace;
     var match = regex.exec(line);
 
@@ -57,27 +55,23 @@ var plugin = function(manifest, options) {
     // console.log(file.contents);
 
     if (file.isStream()) {
-      console.log('is Stream');
+      // console.log('is Stream');
       this.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Streaming not supported'));
       return cb();
     }
 
     if (file.isBuffer()) {
-      console.log('is Buffer');
+      // console.log('is Buffer');
       file.pipe(split())
-      .pipe(through(urlReplace,  function(cb) {
+      .pipe(through(urlReplace,  function(callback) {
         if (content.length) {
           file.contents = new Buffer(content.join('\n'));
-
-          // console.log(file.contents);
           that.push(file);
         }
-
+        // callback();
         cb();
       }));
     }
-
-
 
   });
 

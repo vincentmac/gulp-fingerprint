@@ -1,0 +1,7 @@
+body {
+  background-image: url("/images/body-bg.jpg");
+  background-attachment: fixed; }
+
+.logo {
+  background-image: url("/images/some-logo.png");
+}
