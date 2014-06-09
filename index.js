@@ -35,7 +35,7 @@ var plugin = function(manifest, options) {
 
     if (match) {
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(match[1].replace(/^\//, '')));
-      replace = manifest[match[1]] || manifest[match[1].replace(/^\//, '')];
+      replace = manifest[match[1]] || manifest[match[1].replace(/^\//, '')] || manifest[match[1].split('?')[0]];
       if (replace) line = line.replace(match[1], replace);
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
     }
