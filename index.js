@@ -19,7 +19,8 @@ var plugin = function(manifest, options) {
   options = options || {};
 
   // Default regex to allow for single and double quotes
-  var regex = new RegExp('url\\("(.*)"\\)|src="(.*)"|href="(.*)"|url\\(\'(.*)\'\\)|src=\'(.*)\'|href=\'(.*)\'', 'g');
+  // var regex = new RegExp('url\\("(.*)"\\)|src="(.*)"|href="(.*)"|url\\(\'(.*)\'\\)|src=\'(.*)\'|href=\'(.*)\'', 'g');
+  var regex = new RegExp('url\\("(.*)"\\)|src="(.*)"|href="(.*)"|url\\(\'(.*)\'\\)|src=\'(.*)\'|href=\'(.*)\'');
   var prefix = '';
   var base;
   var content = [];
@@ -34,6 +35,7 @@ var plugin = function(manifest, options) {
   function urlReplace(buf, enc, cb) {
     var line = buf.toString();
     var replaced;
+    // regex.lastIndex = 0; // Reset match index when global match is on
     var match = regex.exec(line);
 
     if (match) {

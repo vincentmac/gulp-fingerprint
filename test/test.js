@@ -8,6 +8,7 @@ var manifest = require('./rev-manifest');
 
 var fakeFile = 'body {\n' +
   '  background-image: url("/images/body-bg.jpg");\n' +
+  '  background-image: url("/images/body-bg.jpg");\n' +
   '  background-attachment: fixed;\n' +
   '}\n' +
   '.logo {\n' +
@@ -15,6 +16,9 @@ var fakeFile = 'body {\n' +
   '}\n' +
   '.logo2 {\n' +
   '  background-image: url(\'assets/images/some-logo2.png\');\n' +
+  '  background-image: url(\'assets/images/some-logo2.png\');\n' +
+  '  background-image: url("/images/some-logo2.png");\n' +
+  '  background-image: url("/images/some-logo2.png");\n' +
   '}'
   ;
 
@@ -74,8 +78,6 @@ it('should match assets with an optional base', function (done) {
     var match2 = regex2.exec(updatedCSS);
     var match3 = regex3.exec(updatedCSS);
 
-// console.log(updatedCSS);
-// console.log('match3', match3);
     assert.equal(match1[0], 'images/body-bg-2d4a1176.jpg');
     assert.equal(match2[0], 'images/some-logo-abd84705.png');
     assert.equal(match3[0], 'images/some-logo2-abd84715.png');
@@ -105,8 +107,6 @@ it('should match assets with an optional base and prepend text', function (done)
     var match2 = regex2.exec(updatedCSS);
     var match3 = regex3.exec(updatedCSS);
 
-// console.log(updatedCSS);
-// console.log('match3', match3);
     assert.equal(match1[0], 'https://cdn.example.com/images/body-bg-2d4a1176.jpg');
     assert.equal(match2[0], 'https://cdn.example.com/images/some-logo-abd84705.png');
     assert.equal(match3[0], 'https://cdn.example.com/images/some-logo2-abd84715.png');
