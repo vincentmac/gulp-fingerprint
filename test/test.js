@@ -7,12 +7,12 @@ var fingerprint = require('../');
 var manifest = require('./rev-manifest');
 
 var fakeFile = 'body {\n' +
-  '  background-image: url("/images/body-bg.jpg");\n' +
+  '  background-image: url("/images/body-bg.jpg");' +
   '  background-image: url("/images/body-bg.jpg");\n' +
   '  background-attachment: fixed;\n' +
   '}\n' +
   '.logo {\n' +
-  '  background-image: url("/images/some-logo.png");\n' +
+  '  background-image: url(/images/some-logo.png);\n' +
   '}\n' +
   '.logo2 {\n' +
   '  background-image: url(\'assets/images/some-logo2.png\');\n' +
