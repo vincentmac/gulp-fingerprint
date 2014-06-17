@@ -34,28 +34,20 @@ var plugin = function(manifest, options) {
 
   function urlReplace(buf, enc, cb) {
     var line = buf.toString();
-    var replaced;
-    // regex.lastIndex = 0; // Reset match index when global match is on
-    var match = regex.exec(line);
 
-    if (match) {
-      _.each(match, function(m) {
-        if (m && !replaced) {
-          if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
-          replaced = manifest[m] || manifest[m.replace(/^\//, '')];
-          if (!replaced && base) replaced = manifest[m.replace(base, '')];
-          if (replaced) line = line.replace(m, prefix + replaced);
+    line = line.replace(regex, function(str) {
+      var match = regex.exec(str);
+      if (!match) return;
 
-          if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
-        }
-      });
-      // if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(match[1].replace(/^\//, '')));
-      // replaced = manifest[match[1]] || manifest[match[1].replace(/^\//, '')];
-      // if (!replaced && base) replaced = manifest[match[1].replace(base, '')];
-      // if (replaced) line = line.replace(match[1], prefix + replaced);
-      //
-      // if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
-    }
+      var url = match.slice(1).filter(function(a) {return a;})[0];
+      if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
+      var replaced = manifest[url] || manifest[url.replace(/^\//, '')];
+      if (!replaced && base) replaced = manifest[url.replace(base, '')];
+      if (replaced) str = str.replace(url, prefix + replaced);
+
+      if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
+      return str;
+    });
 
     content.push(line);
     cb();
