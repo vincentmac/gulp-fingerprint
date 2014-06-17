@@ -35,15 +35,12 @@ var plugin = function(manifest, options) {
   function urlReplace(buf, enc, cb) {
     var line = buf.toString();
 
-    line = line.replace(regex, function(str) {
-      var match = regex.exec(str);
-      if (!match) return;
-
-      var url = match.slice(1).filter(function(a) {return a;})[0];
+    line = line.replace(regex, function(str, i) {
+      var url = Array.prototype.slice.call(arguments, 1).filter(function(a) {return a;})[0];
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
       var replaced = manifest[url] || manifest[url.replace(/^\//, '')];
       if (!replaced && base) replaced = manifest[url.replace(base, '')];
-      if (replaced) str = str.replace(url, prefix + replaced);
+      if (replaced) str = str.split(url).join(prefix + replaced);
 
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
       return str;
