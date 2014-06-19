@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var chalk = require('chalk');
 var gutil = require('gulp-util');
 // var path = require('path');
@@ -20,7 +19,7 @@ var plugin = function(manifest, options) {
 
   // Default regex to allow for single and double quotes
   // var regex = new RegExp('url\\("(.*)"\\)|src="(.*)"|href="(.*)"|url\\(\'(.*)\'\\)|src=\'(.*)\'|href=\'(.*)\'', 'g');
-  var regex = new RegExp('url\\("(.*)"\\)|src="(.*)"|href="(.*)"|url\\(\'(.*)\'\\)|src=\'(.*)\'|href=\'(.*)\'');
+  var regex = /(?:url\(["']?(.*?)['"]?\)|src=["']{1}(.*?)['"]{1}|src=([^\s\>]+)(?:\>|\s)|href=["']{1}(.*?)['"]{1}|href=([^\s\>]+)(?:\>|\s))/g;
   var prefix = '';
   var base;
   var content = [];
@@ -34,28 +33,17 @@ var plugin = function(manifest, options) {
 
   function urlReplace(buf, enc, cb) {
     var line = buf.toString();
-    var replaced;
-    // regex.lastIndex = 0; // Reset match index when global match is on
-    var match = regex.exec(line);
 
-    if (match) {
-      _.each(match, function(m) {
-        if (m && !replaced) {
-          if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
-          replaced = manifest[m] || manifest[m.replace(/^\//, '')];
-          if (!replaced && base) replaced = manifest[m.replace(base, '')];
-          if (replaced) line = line.replace(m, prefix + replaced);
+    line = line.replace(regex, function(str, i) {
+      var url = Array.prototype.slice.call(arguments, 1).filter(function(a) {return a;})[0];
+      if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
+      var replaced = manifest[url] || manifest[url.replace(/^\//, '')];
+      if (!replaced && base) replaced = manifest[url.replace(base, '')];
+      if (replaced) str = str.replace(url, prefix + replaced);
 
-          if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
-        }
-      });
-      // if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(match[1].replace(/^\//, '')));
-      // replaced = manifest[match[1]] || manifest[match[1].replace(/^\//, '')];
-      // if (!replaced && base) replaced = manifest[match[1].replace(base, '')];
-      // if (replaced) line = line.replace(match[1], prefix + replaced);
-      //
-      // if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
-    }
+      if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
+      return str;
+    });
 
     content.push(line);
     cb();
