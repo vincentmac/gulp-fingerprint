@@ -39,7 +39,7 @@ var plugin = function(manifest, options) {
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
       var replaced = manifest[url] || manifest[url.replace(/^\//, '')];
       if (!replaced && base) replaced = manifest[url.replace(base, '')];
-      if (replaced) str = str.split(url).join(prefix + replaced);
+      if (replaced) str = str.replace(url, prefix + replaced);
 
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
       return str;
