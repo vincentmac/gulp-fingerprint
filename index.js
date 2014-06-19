@@ -1,6 +1,5 @@
 'use strict';
 
-var _ = require('lodash');
 var chalk = require('chalk');
 var gutil = require('gulp-util');
 // var path = require('path');
