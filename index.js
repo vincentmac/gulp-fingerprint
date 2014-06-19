@@ -19,7 +19,7 @@ var plugin = function(manifest, options) {
 
   // Default regex to allow for single and double quotes
   // var regex = new RegExp('url\\("(.*)"\\)|src="(.*)"|href="(.*)"|url\\(\'(.*)\'\\)|src=\'(.*)\'|href=\'(.*)\'', 'g');
-  var regex = /(?:url\(["']?(.*?)['"]?\)|src=["']{1}(.*?)['"]{1}|src=([^\s\>\/]+)(?:\>|\/|\s)|href=["']{1}(.*?)['"]{1}|href=([^\s\>\/]+)(?:\>|\/|\s))/g;
+  var regex = /(?:url\(["']?(.*?)['"]?\)|src=["']{1}(.*?)['"]{1}|src=([^\s\>]+)(?:\>|\s)|href=["']{1}(.*?)['"]{1}|href=([^\s\>]+)(?:\>|\s))/g;
   var prefix = '';
   var base;
   var content = [];
