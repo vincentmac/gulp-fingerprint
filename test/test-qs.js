@@ -26,14 +26,14 @@ var fakeFile = '<html>'
       stream.on('data', function (file) {
         var updatedHTML = file.contents.toString();
         // console.log(updatedHTML);
-        var regex1 = /images\/favicon\.ico\#v=99999/;
+        var regex1 = /images\/favicon-99999\.ico/;
         var regex2 = /js\/site\.js\?v=10923/;
         var regex3 = /js\/other\.js\?v=190283091/;
         var match1 = regex1.exec(updatedHTML);
         var match2 = regex2.exec(updatedHTML);
         var match3 = regex3.exec(updatedHTML);
 
-        assert.equal(match1[0], 'images/favicon.ico#v=99999');
+        assert.equal(match1[0], 'images/favicon-99999.ico');
         assert.equal(match2[0], 'js/site.js?v=10923');
         assert.equal(match3[0], 'js/other.js?v=190283091');
         done();
