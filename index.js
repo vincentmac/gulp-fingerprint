@@ -2,7 +2,7 @@
 
 var chalk = require('chalk');
 var gutil = require('gulp-util');
-// var path = require('path');
+var path = require('path');
 var split = require('split2');
 var through = require('through2');
 
@@ -45,6 +45,10 @@ var plugin = function(manifest, options) {
 
   if (base) {
     var baseRegex = new RegExp('^\/' + base + '|^' + base);
+  }
+
+  if (typeof(manifest) === 'string') {
+    manifest = require(path.resolve(manifest));
   }
 
   function regexMode(buf, enc, cb) {
