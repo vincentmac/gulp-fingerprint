@@ -55,7 +55,12 @@ var plugin = function(manifest, options) {
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
       var replaced = manifest[url] || manifest[url.replace(/^\//, '')] || manifest[url.split(/[#?]/)[0]];
       if (!replaced && base) replaced = manifest[url.replace(baseRegex, '')];
-      if (replaced) str = str.replace(url, prefix + replaced.replace(stripRegex, ''));
+      if (replaced) {
+        if (strip) {
+          replaced = replaced.replace(stripRegex, '');
+        }
+        str = str.replace(url, prefix + replaced);
+      }
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
       return str;
     });
