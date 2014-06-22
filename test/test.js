@@ -167,3 +167,24 @@ it('should match assets in html', function(done) {
     contents: new Buffer(fakeHtmlFile)
   }));
 });
+
+it('should strip asset path', function (done) {
+  var stream = fingerprint(manifest, {
+    strip: '/images/'
+  });
+
+  stream.on('data', function (file) {
+    var updatedCSS = file.contents.toString();
+    var regex1 = /"body-bg-2d4a1176.jpg"/g;
+    var match1 = regex1.exec(updatedCSS);
+
+    assert.equal(match1[0], '"body-bg-2d4a1176.jpg"');
+    done();
+  });
+
+  stream.write(new gutil.File({
+    path: 'app.css',
+    contents: new Buffer(fakeCssFile)
+  }));
+
+});

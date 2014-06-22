@@ -22,6 +22,7 @@ var plugin = function(manifest, options) {
   var regex = /(?:url\(["']?(.*?)['"]?\)|src=["']{1}(.*?)['"]{1}|src=([^\s\>]+)(?:\>|\s)|href=["']{1}(.*?)['"]{1}|href=([^\s\>]+)(?:\>|\s))/g;
   var prefix = '';
   var base;
+  var strip = '';
   var content = [];
 
   // Use custom RegExp
@@ -31,6 +32,12 @@ var plugin = function(manifest, options) {
 
   if (options.base) base = new RegExp('^\/' + options.base + '|^' + options.base);
 
+  if (options.strip) strip = options.strip;
+
+  function removeBase(str, base) {
+    return str && str.slice(0, base.length).replace(base, '') + str.slice(base.length);
+  }
+
   function urlReplace(buf, enc, cb) {
     var line = buf.toString();
 
@@ -38,8 +45,8 @@ var plugin = function(manifest, options) {
       var url = Array.prototype.slice.call(arguments, 1).filter(function(a) {return a;})[0];
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(m.replace(/^\//, '')));
       var replaced = manifest[url] || manifest[url.replace(/^\//, '')] || manifest[url.split('?')[0]];
-      if (!replaced && base) replaced = manifest[url.replace(base, '')];
-      if (replaced) str = str.replace(url, prefix + replaced);
+      if (!replaced && base) replaced = manifest[removeBase(url, base)];
+      if (replaced) str = str.replace(url, prefix + removeBase(replaced, strip.replace(/^\//, '')));
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(line));
       return str;
     });
