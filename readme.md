@@ -49,7 +49,7 @@ _Example_: `rev-manifest.json` produced from using [gulp-rev](https://www.npmjs.
 }
 ```
 
-If it's a string, it will be interpretered as path to json file.
+If a `string` is passed in as the manifest, gulp-fingerprint will interpret this as a path and automatically require the json file.
 
 #### options
 
@@ -58,7 +58,7 @@ _Type_: `string`
 
 _Default_: `regex`
 
-_Usage_: Setting a `prefix` will change the method of url replacing. There are two methods: `regex` and `replace`. Second method is less accurate but doesn't require to specify complicated regular expression.
+_Usage_: Setting a `mode` will change the method of url replacing. There are two methods: `regex` and `replace`. The `replace` method is less accurate but doesn't require specifying a regular expression.
 
 ##### regex
 _Type_: [`RegExp`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp)

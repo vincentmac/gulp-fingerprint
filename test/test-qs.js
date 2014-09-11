@@ -5,16 +5,16 @@ var assert = require('assert');
 var gutil = require('gulp-util');
 var fingerprint = require('../');
 var manifest = require('./rev-qs-manifest');
-var fakeFile = '<html>'
-+ '<head>\n'
-+ '<title>Some Web Site</title>\n'
-+ '<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico#v=74180833826528598c89f0d4949473a7">\n'
-+ '    <script src="js/site.js?v=c625c1e4b5dd80acb73126287946fd5b"></script>\n'
-+ '   <script src="js/other.js"></script>\n'
-+ '  </head>\n'
-+ '  <body>\n'
-+ '  </body>\n'
-+ '</html>';
+var fakeFile = '<html>' +
+  '<head>\n' +
+  '  <title>Some Web Site</title>\n' +
+  '  <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico#v=74180833826528598c89f0d4949473a7">\n' +
+  '  <script src="js/site.js?v=c625c1e4b5dd80acb73126287946fd5b"></script>\n' +
+  '  <script src="js/other.js"></script>\n' +
+  '</head>\n' +
+  '<body>\n' +
+  '</body>\n' +
+  '</html>';
 
 ['regex', 'replace'].forEach(function(mode) {
 
