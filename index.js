@@ -5,6 +5,9 @@ var gutil = require('gulp-util');
 var path = require('path');
 var split = require('split2');
 var through = require('through2');
+var SourceMapGenerator = require('source-map').SourceMapGenerator;
+var SourceMapConsumer  = require('source-map').SourceMapConsumer;
+
 
 var PLUGIN_NAME = 'gulp-fingerprint';
 
@@ -53,8 +56,12 @@ var plugin = function(manifest, options) {
 
   function regexMode(buf, enc, cb) {
     var line = buf.toString();
+    var replacements = [];
+    var shift = 0;
 
     line = line.replace(regex, function(str, i) {
+      var originalMatch = str;
+      var offset = arguments[arguments.length-2];
       var url = Array.prototype.slice.call(arguments, 1).filter(function(a) {return a;})[0];
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
       var replaced = manifest[url] || manifest[url.replace(/^\//, '')] || manifest[url.split(/[#?]/)[0]];
@@ -64,12 +71,21 @@ var plugin = function(manifest, options) {
           replaced = replaced.replace(stripRegex, '');
         }
         str = str.replace(url, prefix + replaced);
+        replacements.push({
+          original:  offset,
+          generated: offset + shift
+        });
+        replacements.push({
+          original:  offset + originalMatch.length,
+          generated: offset + shift + str.length
+        });
+        shift = shift + (str.length - originalMatch.length);
       }
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced));
       return str;
     });
 
-    content.push(line);
+    content.push([line, replacements]);
     cb();
   }
 
@@ -77,6 +93,12 @@ var plugin = function(manifest, options) {
     var line = buf.toString();
 
     base = base.replace(/(^\/|\/$)/g, '');
+
+    var replacements = [];
+    function lastReplacement(a) {
+      var i = a[a.length-1];
+      return i || {original: 0, generated: 0};
+    }
 
     for (var url in manifest) {
       var dest = manifest[url], replaced, bases;
@@ -90,17 +112,32 @@ var plugin = function(manifest, options) {
         bases.unshift('/' + base + '/', base + '/');
       }
       for (var i = 0; i < bases.length; i++) {
-        var newLine = line.split(bases[i] + url).join(replaced);
+        var replacementsForBase = [];
+        var currentUrl = bases[i] + url;
+        var tokens = line.split(currentUrl);
+        for (var j=1; j < tokens.length; j++) {
+          replacementsForBase.push({
+            original:  lastReplacement(replacementsForBase).original  + tokens[j-1].length,
+            generated: lastReplacement(replacementsForBase).generated + tokens[j-1].length
+          });
+          replacementsForBase.push({
+            original:  lastReplacement(replacementsForBase).original  + currentUrl.length,
+            generated: lastReplacement(replacementsForBase).generated + replaced.length
+          });
+        }
+
+        var newLine = line.split(currentUrl).join(replaced);
         if (line !== newLine) {
           if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
           if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced));
           line = newLine;
+          replacements.push.apply(replacements, replacementsForBase);
           break;
         }
       }
     }
 
-    content.push(line);
+    content.push([line, replacements]);
     cb();
   }
 
@@ -122,10 +159,46 @@ var plugin = function(manifest, options) {
 
     if (file.isBuffer()) {
       // console.log('is Buffer');
+      var oldContent = file.contents.toString();
       file.pipe(split())
       .pipe(through(mode === 'regex' ? regexMode : replaceMode,  function(callback) {
         if (content.length) {
-          file.contents = new Buffer(content.join('\n'));
+          var stringContent = content.map(function(x){return x[0];});
+          file.contents = new Buffer(stringContent.join('\n'));
+
+          if (file.sourceMap) {
+            var map, calculateMapping;
+            if (file.sourceMap.mappings) {
+              var consumer  = new SourceMapConsumer(file.sourceMap);
+              map = SourceMapGenerator.fromSourceMap(consumer);
+              calculateMapping = function(lineNo, mapping) {
+                var orig = consumer.originalPositionFor({line: lineNo, column: mapping.original});
+                return { 
+                  original:  {line: orig.line, column: orig.column      },
+                  generated: {line: lineNo   , column: mapping.generated},
+                  source: orig.source
+                };
+              };
+            } else {
+              map = new SourceMapGenerator({ file: file.relative });
+              map.setSourceContent(file.relative, oldContent);
+              calculateMapping = function(lineNo, mapping, source) {
+                return { 
+                  original:  {line: lineNo , column: mapping.original },
+                  generated: {line: lineNo , column: mapping.generated},
+                  source: source
+                };
+              };
+            }
+
+            var replacements = content.map(function(x){return x[1];});
+            replacements.forEach(function(line, lineNo){
+              line.forEach(function(mapping){
+                map.addMapping(calculateMapping(lineNo, mapping, file.relative));
+              });
+            });
+            file.sourceMap = map.toJSON();
+          }
           that.push(file);
         }
         // callback();
