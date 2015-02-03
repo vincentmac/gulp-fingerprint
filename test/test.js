@@ -28,6 +28,7 @@ var fakeHtmlFile = '<body>\n' +
   '  <img src=\'/images/some-logo.png\' alt="" />\n' +
   '  <a href=/images/some-logo.png></a>\n' +
   '  <img src=/images/body-bg.jpg alt="" />\n' +
+  '  <img src="" alt="" />\n' +
   '</body>';
 
 ['regex', 'replace'].forEach(function(mode) {

@@ -55,7 +55,7 @@ var plugin = function(manifest, options) {
     var line = buf.toString();
 
     line = line.replace(regex, function(str, i) {
-      var url = Array.prototype.slice.call(arguments, 1).filter(function(a) {return a;})[0];
+      var url = Array.prototype.slice.call(arguments, 1).filter(function(a) { return typeof a === 'string'; })[0];
       if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
       var replaced = manifest[url] || manifest[url.replace(/^\//, '')] || manifest[url.split(/[#?]/)[0]];
       if (!replaced && base) replaced = manifest[url.replace(baseRegex, '')];
