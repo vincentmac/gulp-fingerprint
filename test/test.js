@@ -19,6 +19,9 @@ var fakeCssFile = 'body {\n' +
   '  background-image: url(\'assets/images/some-logo2.png\');\n' +
   '  background-image: url("/images/some-logo2.png");\n' +
   '  background-image: url("/images/some-logo2.png");\n' +
+  '}' +
+  '.logo3 {\n' +
+  '  background-image: url(\'/images/some-logo3.svg#test\');\n' +
   '}'
   ;
 var fakeHtmlFile = '<body>\n' +
@@ -184,6 +187,25 @@ var fakeHtmlFile = '<body>\n' +
         var match1 = regex1.exec(updatedCSS);
 
         assert.equal(match1[0], '"body-bg-2d4a1176.jpg"');
+        done();
+      });
+
+      stream.write(new gutil.File({
+        path: 'app.css',
+        contents: new Buffer(fakeCssFile)
+      }));
+
+    });
+
+    it('should update hashed urls', function (done) {
+      var stream = fingerprint(manifest, { mode: mode });
+
+      stream.on('data', function (file) {
+        var updatedCSS = file.contents.toString();
+        var regex1 = /images\/some\-logo3\-2d4a1176\.svg#test/g;
+        var match1 = regex1.exec(updatedCSS);
+
+        assert.equal(match1[0], 'images/some-logo3-2d4a1176.svg#test');
         done();
       });
 

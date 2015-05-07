@@ -56,16 +56,35 @@ var plugin = function(manifest, options) {
 
     line = line.replace(regex, function(str, i) {
       var url = Array.prototype.slice.call(arguments, 1).filter(function(a) { return typeof a === 'string'; })[0];
-      if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
-      var replaced = manifest[url] || manifest[url.replace(/^\//, '')] || manifest[url.split(/[#?]/)[0]];
-      if (!replaced && base) replaced = manifest[url.replace(baseRegex, '')];
+
+      var replaced = manifest[url] ||
+            manifest[url.replace(/^\//, '')] ||
+            manifest[url.split(/[#?]/)[0]] ||
+            manifest[url.replace(/^\//, '').split(/[#?]/)[0]];
+      if (!replaced && base) {
+        replaced = manifest[url.replace(baseRegex, '')] ||
+          manifest[url.replace(baseRegex, '').replace(/^\//, '')] ||
+          manifest[url.replace(baseRegex, '').split(/[#?]/)[0]] ||
+          manifest[url.replace(baseRegex, '').replace(/^\//, '').split(/[#?]/)[0]];
+      }
+
       if (replaced) {
         if (strip) {
           replaced = replaced.replace(stripRegex, '');
         }
-        str = str.replace(url, prefix + replaced);
+        var suffix = '';
+        if (url.split(/[#?]/).length > 1) {
+          suffix = url.substring(url.indexOf(url.split(/[#?]/)[0]) + url.split(/[#?]/)[0].length);
+        }
+        str = str.replace(url, prefix + replaced + suffix);
       }
-      if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced));
+      if (options.verbose) {
+        if (replaced) {
+          gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced + suffix));
+        } else {
+          gutil.log(PLUGIN_NAME, 'Not Replaced:', chalk.red(str));
+        }
+      }
       return str;
     });
 
