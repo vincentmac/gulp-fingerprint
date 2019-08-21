@@ -1,10 +1,11 @@
 'use strict';
 
 var chalk = require('chalk');
-var gutil = require('gulp-util');
 var path = require('path');
 var split = require('split2');
 var through = require('through2');
+var log = require('fancy-log');
+var PluginError = require('plugin-error');
 
 var PLUGIN_NAME = 'gulp-fingerprint';
 
@@ -56,7 +57,7 @@ var plugin = function(manifest, options) {
 
     line = line.replace(regex, function(str, i) {
       var url = Array.prototype.slice.call(arguments, 1).filter(function(a) { return typeof a === 'string'; })[0];
-      if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
+      if (options.verbose) log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
       var replaced = manifest[url] || manifest[url.replace(/^\//, '')] || manifest[url.split(/[#?]/)[0]];
       if (!replaced && base) replaced = manifest[url.replace(baseRegex, '')];
       if (replaced) {
@@ -65,7 +66,7 @@ var plugin = function(manifest, options) {
         }
         str = str.replace(url, prefix + replaced);
       }
-      if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced));
+      if (options.verbose) log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced));
       return str;
     });
 
@@ -92,8 +93,8 @@ var plugin = function(manifest, options) {
       for (var i = 0; i < bases.length; i++) {
         var newLine = line.split(bases[i] + url).join(replaced);
         if (line !== newLine) {
-          if (options.verbose) gutil.log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
-          if (options.verbose) gutil.log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced));
+          if (options.verbose) log(PLUGIN_NAME, 'Found:', chalk.yellow(url.replace(/^\//, '')));
+          if (options.verbose) log(PLUGIN_NAME, 'Replaced:', chalk.green(prefix + replaced));
           line = newLine;
           break;
         }
@@ -116,21 +117,48 @@ var plugin = function(manifest, options) {
 
     if (file.isStream()) {
       // console.log('is Stream');
-      this.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Streaming not supported'));
+      this.emit('error', new PluginError(PLUGIN_NAME, 'Streaming not supported'));
       return cb();
     }
 
     if (file.isBuffer()) {
       // console.log('is Buffer');
-      file.pipe(split())
-      .pipe(through(mode === 'regex' ? regexMode : replaceMode,  function(callback) {
-        if (content.length) {
-          file.contents = new Buffer(content.join('\n'));
-          that.push(file);
+
+      // ugly fix to put in back the deprecated pipe fn they have removed, see:
+      // https://github.com/gulpjs/vinyl/commit/d14ba4a7b51f0f3682f65f2aa4314d981eb1029d
+      // although this works here and restores same functionality.
+      // TODO consider rewriting whole stream logic
+      file.pipe = function(stream, opt = {end: true}) {
+        if (this.isStream()) {
+          return this.contents.pipe(stream, opt);
         }
-        // callback();
-        cb();
-      }));
+
+        if (this.isBuffer()) {
+          if (opt.end) {
+            stream.end(this.contents);
+          } else {
+            stream.write(this.contents);
+          }
+          return stream;
+        }
+
+        if (opt.end) {
+          stream.end();
+        }
+
+        return stream;
+      };
+
+      file
+        .pipe(split())
+        .pipe(through(mode === 'regex' ? regexMode : replaceMode,  function(callback) {
+          if (content.length) {
+            file.contents = new Buffer(content.join('\n'));
+            that.push(file);
+          }
+          // callback();
+          cb();
+        }));
     }
 
   });

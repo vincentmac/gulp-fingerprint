@@ -2,7 +2,7 @@
 'use strict';
 
 var assert = require('assert');
-var gutil = require('gulp-util');
+var Vinyl = require('vinyl');
 var fingerprint = require('../');
 var manifest = require('./rev-qs-manifest');
 var fakeFile = '<html>' +
@@ -39,7 +39,7 @@ var fakeFile = '<html>' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.html',
         contents: new Buffer(fakeFile)
       }));
