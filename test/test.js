@@ -2,7 +2,7 @@
 'use strict';
 
 var assert = require('assert');
-var gutil = require('gulp-util');
+var Vinyl = require('vinyl');
 var fingerprint = require('../');
 var manifest = require('./rev-manifest');
 
@@ -50,7 +50,7 @@ var fakeHtmlFile = '<body>\n' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.css',
         contents: new Buffer(fakeCssFile)
       }));
@@ -72,7 +72,7 @@ var fakeHtmlFile = '<body>\n' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.css',
         contents: new Buffer(fakeCssFile)
       }));
@@ -97,7 +97,7 @@ var fakeHtmlFile = '<body>\n' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.css',
         contents: new Buffer(fakeCssFile)
       }));
@@ -126,7 +126,7 @@ var fakeHtmlFile = '<body>\n' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.css',
         contents: new Buffer(fakeCssFile)
       }));
@@ -144,7 +144,7 @@ var fakeHtmlFile = '<body>\n' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.css',
         contents: new Buffer(fakeCssFile)
       }));
@@ -167,7 +167,7 @@ var fakeHtmlFile = '<body>\n' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.html',
         contents: new Buffer(fakeHtmlFile)
       }));
@@ -187,7 +187,7 @@ var fakeHtmlFile = '<body>\n' +
         done();
       });
 
-      stream.write(new gutil.File({
+      stream.write(new Vinyl({
         path: 'app.css',
         contents: new Buffer(fakeCssFile)
       }));
